@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent DockerInterface
 
     stages {
         stage('Checkout') {
