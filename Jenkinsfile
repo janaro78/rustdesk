@@ -1,5 +1,5 @@
 pipeline {
-    agent DockerInterface
+    agent { label 'docker' }
 
     stages {
         stage('Checkout') {
@@ -11,6 +11,13 @@ pipeline {
         stage('Validate') {
             steps {
                 sh 'docker compose config'
+            }
+        }
+
+        stage('Docker Test') {
+            steps {
+                sh 'docker --version'
+                sh 'docker ps'
             }
         }
     }
