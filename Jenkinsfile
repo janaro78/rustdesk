@@ -2,22 +2,10 @@ pipeline {
     agent { label 'docker' }
 
     stages {
-        stage('Checkout') {
+        stage('Validate Staging Compose') {
             steps {
-                echo 'RustDesk repository checked out successfully'
-            }
-        }
-
-        stage('Validate') {
-            steps {
-                sh 'docker compose config'
-            }
-        }
-
-        stage('Docker Test') {
-            steps {
-                sh 'docker --version'
-                sh 'docker ps'
+                echo 'Validating RustDesk staging configuration'
+                sh 'docker compose -f compose.staging.yml config'
             }
         }
     }
