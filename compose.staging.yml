@@ -28,7 +28,7 @@ services:
       - ./data-staging:/root
 
     ports:
-      - "672117:21117/tcp"
-      - "672119:21119/tcp"
+      - "22117:21117/tcp"
+      - "22119:21119/tcp"
 
     restart: unless-stopped
