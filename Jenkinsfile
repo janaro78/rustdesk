@@ -5,7 +5,7 @@ pipeline {
         stage('Validate Staging Compose') {
             steps {
                 echo 'Validating RustDesk staging configuration'
-                sh 'docker compose -f compose.staging.yml'
+                sh 'docker compose -p Rustdesk-Staging -f compose.staging.yml up -d'
             }
         }
     }
