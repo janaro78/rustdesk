@@ -33,5 +33,5 @@ services:
 
     restart: unless-stopped
   
-  volumes:
-    data-staging:
+volumes:
+  data-staging:
