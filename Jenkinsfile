@@ -1,6 +1,14 @@
 pipeline {
     agent { label 'docker' }
 
+    parameters {
+        choice(
+            name: 'ACTION',
+            choices: ['DEPLOY', 'DESTROY'],
+            description: 'Choose RustDesk staging action'
+        )
+    }
+
     environment {
         COMPOSE = 'docker compose -p rustdesk-staging -f compose.staging.yml'
     }
@@ -8,27 +16,38 @@ pipeline {
     stages {
 
         stage('Validate') {
+            when {
+                expression { params.ACTION == 'DEPLOY' }
+            }
             steps {
                 sh '${COMPOSE} config'
             }
         }
 
         stage('Pull Images') {
+            when {
+                expression { params.ACTION == 'DEPLOY' }
+            }
             steps {
                 sh '${COMPOSE} pull'
             }
         }
 
         stage('Create Staging Containers') {
+            when {
+                expression { params.ACTION == 'DEPLOY' }
+            }
             steps {
-                // Create the containers but do not start them yet.
-                // This ensures RustDesk does not generate its own keys
-                // before Jenkins installs the required keys.
+                // Create containers without starting RustDesk.
+                // Keys will be installed before RustDesk starts.
                 sh '${COMPOSE} create'
             }
         }
 
         stage('Install RustDesk Keys') {
+            when {
+                expression { params.ACTION == 'DEPLOY' }
+            }
             steps {
                 withCredentials([
                     file(
@@ -58,14 +77,36 @@ pipeline {
         }
 
         stage('Deploy Staging') {
+            when {
+                expression { params.ACTION == 'DEPLOY' }
+            }
             steps {
                 sh '${COMPOSE} up -d'
             }
         }
 
         stage('Verify Staging') {
+            when {
+                expression { params.ACTION == 'DEPLOY' }
+            }
             steps {
                 sh '${COMPOSE} ps'
+            }
+        }
+
+        stage('Destroy Staging') {
+            when {
+                expression { params.ACTION == 'DESTROY' }
+            }
+            steps {
+                sh '''
+                    ${COMPOSE} down
+
+                    docker run --rm \
+                        -v /:/host \
+                        alpine \
+                        rm -rf /host/data-staging
+                '''
             }
         }
 
