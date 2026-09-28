@@ -28,44 +28,30 @@ pipeline {
         }
 
         stage('Install RustDesk Keys') {
-            steps {
-                withCredentials([
-                    file(
-                        credentialsId: 'id_ed25519',
-                        variable: 'RUSTDESK_PRIVATE_KEY'
-                    ),
-                    file(
-                        credentialsId: 'id_ed25519.pub',
-                        variable: 'RUSTDESK_PUBLIC_KEY'
-                    )
-                ]) {
-                    sh '''
-                        docker run --rm \
-                            -v ${VOLUME}:/rustdesk \
-                            -v "$RUSTDESK_PRIVATE_KEY":/keys/id_ed25519:ro \
-                            -v "$RUSTDESK_PUBLIC_KEY":/keys/id_ed25519.pub:ro \
-                            alpine \
-                            sh -c '
-                                cp /keys/id_ed25519 /rustdesk/id_ed25519 &&
-                                cp /keys/id_ed25519.pub /rustdesk/id_ed25519.pub &&
-                                chmod 600 /rustdesk/id_ed25519 &&
-                                chmod 644 /rustdesk/id_ed25519.pub
-                            '
-                    '''
-                }
-            }
-        }
+    steps {
+        withCredentials([
+            file(
+                credentialsId: 'id_ed25519',
+                variable: 'RUSTDESK_PRIVATE_KEY'
+            ),
+            file(
+                credentialsId: 'id_ed25519.pub',
+                variable: 'RUSTDESK_PUBLIC_KEY'
+            )
+        ]) {
+            sh '''
+                cat "$RUSTDESK_PRIVATE_KEY" | \
+                    docker run --rm -i \
+                    -v /data-staging:/root \
+                    alpine \
+                    sh -c 'cat > /root/id_ed25519 && chmod 600 /root/id_ed25519'
 
-        stage('Deploy Staging') {
-            steps {
-                sh '${COMPOSE} up -d'
-            }
-        }
-
-        stage('Verify') {
-            steps {
-                sh '${COMPOSE} ps'
-            }
+                cat "$RUSTDESK_PUBLIC_KEY" | \
+                    docker run --rm -i \
+                    -v /data-staging:/root \
+                    alpine \
+                    sh -c 'cat > /root/id_ed25519.pub && chmod 644 /root/id_ed25519.pub'
+            '''
         }
     }
 }
