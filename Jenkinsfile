@@ -113,8 +113,65 @@ pipeline {
         }
 
         /*
+        * ============================================================
+        * Runtime tests
+        * ============================================================
+        */
+
+        stage('Runtime Tests') {
+            when {
+                expression { params.ACTION == 'DEPLOY' }
+            }
+            steps {
+                echo 'Running RustDesk runtime tests...'
+
+                sh '''
+                    echo "Checking HBBS container is running..."
+
+                    docker inspect \
+                        id_server_hbbs_rustdesk_staging \
+                        --format '{{.State.Running}}' | grep -qx true
+
+                    echo "PASS: HBBS container is running"
+
+
+                    echo "Checking HBBR container is running..."
+
+                    docker inspect \
+                        relay_server_hbbr_rustdesk_staging \
+                        --format '{{.State.Running}}' | grep -qx true
+
+                    echo "PASS: HBBR container is running"
+
+
+                    echo "Checking HBBS image version..."
+
+                    docker inspect \
+                        id_server_hbbs_rustdesk_staging \
+                        --format '{{.Config.Image}}' | \
+                        grep -qx 'rustdesk/rustdesk-server:1.1.16'
+
+                    echo "PASS: HBBS is running RustDesk 1.1.16"
+
+
+                    echo "Checking HBBR image version..."
+
+                    docker inspect \
+                        relay_server_hbbr_rustdesk_staging \
+                        --format '{{.Config.Image}}' | \
+                        grep -qx 'rustdesk/rustdesk-server:1.1.16'
+
+                    echo "PASS: HBBR is running RustDesk 1.1.16"
+
+
+                    echo "All RustDesk runtime tests passed."
+                '''
+            }
+        }
+
+        /*
          * ============================================================
-         * TESTING
+         * TESTING PORTS
          * ============================================================
          */
 
