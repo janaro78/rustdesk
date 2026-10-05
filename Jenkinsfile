@@ -15,6 +15,29 @@ pipeline {
 
     stages {
 
+                /*
+         * ============================================================
+         * Gitleaks Scan "." is for current folder, which is the root of the repository
+         * ============================================================
+         */
+
+        stage('Security - Gitleaks') {
+            when {
+                expression { params.ACTION == 'DEPLOY' }
+            }
+            steps {
+                echo 'Scanning Git repository for secrets...'
+
+                sh '''
+                    gitleaks git \
+                        --verbose \
+                        .
+                '''
+
+                echo 'PASS: No secrets detected by Gitleaks.'
+            }
+        }
+
         /*
          * ============================================================
          * DEPLOY PIPELINE
