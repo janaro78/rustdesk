@@ -59,7 +59,7 @@ pipeline {
                         .
                 '''
 
-                echo 'PASS: Trivy configuration scan passed.'
+                echo 'PASS: Trivy repository/configuration scan passed.'
             }
 
         /*
