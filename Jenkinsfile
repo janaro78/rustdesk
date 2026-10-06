@@ -61,6 +61,7 @@ pipeline {
 
                 echo 'PASS: Trivy repository/configuration scan passed.'
             }
+        }
 
         /*
          * ============================================================
