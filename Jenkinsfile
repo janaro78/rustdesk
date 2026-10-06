@@ -15,7 +15,7 @@ pipeline {
 
     stages {
 
-                /*
+        /*
          * ============================================================
          * Gitleaks Scan "." is for current folder, which is the root of the repository
          * ============================================================
@@ -37,6 +37,30 @@ pipeline {
                 echo 'PASS: No secrets detected by Gitleaks.'
             }
         }
+
+        
+        /*
+         * ============================================================
+         * Trivy Configuration Scan
+         * ============================================================
+         */
+
+        stage('Security - Trivy') {
+            when {
+                expression { params.ACTION == 'DEPLOY' }
+            }
+            steps {
+                echo 'Scanning RustDesk Docker Compose configuration...'
+
+                sh '''
+                    trivy config \
+                        --exit-code 1 \
+                        --severity HIGH,CRITICAL \
+                        .
+                '''
+
+                echo 'PASS: Trivy configuration scan passed.'
+            }
 
         /*
          * ============================================================
