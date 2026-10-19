@@ -45,23 +45,23 @@ pipeline {
          * ============================================================
          */
 
-        stage('Security - Trivy') {
+        stage('Security - Trivy Image') {
             when {
                 expression { params.ACTION == 'DEPLOY' }
             }
             steps {
-                echo 'Scanning RustDesk Docker Compose configuration...'
+                echo 'Scanning RustDesk 1.1.16 container image for vulnerabilities...'
 
                 sh '''
-                    trivy config \
+                    trivy image \
                         --exit-code 1 \
                         --severity HIGH,CRITICAL \
-                        .
+                        rustdesk/rustdesk-server:1.1.16
                 '''
 
-                echo 'PASS: Trivy repository/configuration scan passed.'
+                echo 'PASS: Trivy image vulnerability scan passed.'
             }
-        }
+        } 
 
         /*
          * ============================================================
