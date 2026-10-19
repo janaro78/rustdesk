@@ -60,7 +60,7 @@ pipeline {
                 '''
 
                 echo 'PASS: Trivy image vulnerability scan passed.'
-            }
+            } 
         }
 
         /*
